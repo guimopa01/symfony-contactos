@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+
+use App\Entity\Contacto;
+use Doctrine\Persistence\ManagerRegistry;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,9 +13,22 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class PageController extends AbstractController
 {
-    #[Route('/', name: 'inicio')]
-    public function inicio(): Response
-    {
-        return $this->render('inicio.html.twig');
-    }
+#[Route('/', name: 'inicio')]
+
+public function inicio(ManagerRegistry $doctrine): Response
+
+{
+
+$repositorio = $doctrine->getRepository(Contacto::class);
+
+// findAll es un método que se encuentra en el repositorio
+
+$contactos = $repositorio->findAll();
+
+//Mostramos la plantilla pasándole los contactos
+
+return $this->render("inicio.html.twig", ["contactos" => $contactos]);
+
+}
+
 }
