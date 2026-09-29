@@ -9,7 +9,11 @@
 
 <p>Página de inicio</p>
 
+<a href="{{ path('nuevo') }}">Añadir contacto</a>
+
 {%for contacto in contactos %}
+<a href="{{ path('contacto', {codigo: contacto.id}) }}">
 {%include 'partials/_contacto.html.twig' with {contacto: contacto}%}
+</a>
 {%endfor%}
 {%endblock%}

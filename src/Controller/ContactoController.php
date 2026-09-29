@@ -16,27 +16,42 @@ final class ContactoController extends AbstractController
 
 // Si queremos validar un parámetro, su usa 'requeriments' que es una expresión regular. En este caso, solo permite números de longitud variable
 
-#[Route('/contacto/{codigo}', name: 'contacto', requirements: ['codigo' => '[0-9]+'])]
+#[Route('/contacto/{codigo}', name: 'contacto', requirements: ['codigo' => '[0-9]+'], methods: ['GET','POST'])]
 
 // Symfony inyecta la dependencia ManagerRegistry automáticamente
 
 // Le pasa la variable $codigo con el valor en {codigo}. Si no se le pasa, coge 1 por defecto, en otro caso, daría not found
 
-public function ficha(ManagerRegistry $doctrine, int $codigo = 1): Response
-
+public function ficha(ManagerRegistry $doctrine, Request $request, int $codigo = 1): Response
 {
+    if (!$this->getUser()) {
+        return $this->redirectToRoute('inicio');
+    }
 
-// La primera instrucción suele ser esta, ya que cogemos el repositorio de la entidad asociada
+    $repositorio = $doctrine->getRepository(Contacto::class);
+    $contacto = $repositorio->find($codigo);
 
-$repositorio = $doctrine->getRepository(Contacto::class);
+    if (!$contacto) {
+        return $this->render("ficha-contacto.html.twig", ["contacto" => null]);
+    }
 
-// Ahora usamos uno de los métodos del repositorio
+    if ($request->isMethod('POST')) {
+        $accion = $request->request->get('accion');
 
-$contacto = $repositorio->find($codigo);
+        if ($accion === 'editar') {
+            return $this->redirectToRoute('editar', ['codigo' => $codigo]);
+        }
 
-// Y creamos la vista HTML
+        if ($accion === 'borrar') {
+            $entityManager = $doctrine->getManager();
+            $entityManager->remove($contacto);
+            $entityManager->flush();
 
-return $this->render("ficha-contacto.html.twig", ["contacto" => $contacto]);
+            return $this->redirectToRoute('inicio');
+        }
+    }
+
+    return $this->render("ficha-contacto.html.twig", ["contacto" => $contacto]);
 }
 
 #[Route('/contacto/nuevo/{nombre}/{telefono}/{email}', name: 'nuevo-con-datos')]
