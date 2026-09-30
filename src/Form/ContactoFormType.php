@@ -26,7 +26,7 @@ $builder
 'placeholder' => 'Seleccione una provincia',
 'required' => true,
 ])
-->add('submit', SubmitType::class, array('label' => 'Enviar'))
+->add('submit', SubmitType::class, array('label' => 'Guardar Contacto'))
 ;
 }
 
